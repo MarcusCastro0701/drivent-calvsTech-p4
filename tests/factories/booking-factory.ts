@@ -14,6 +14,19 @@ export async function createBooking(userId: number, roomId: number){
 
 }
 
+export async function createBookingWithWrongUserId(userId: number, roomId: number){
+
+    const create = await prisma.booking.create({
+        data: {
+            userId: Number(userId) + 1,
+            roomId: roomId
+        }
+    })
+
+    return create
+
+}
+
 export async function createManyBookings(userId: number, roomId: number){
     const create = await prisma.booking.createMany({
         data: [

@@ -20,7 +20,7 @@ import {
   createBooking,
   createTicketTypeWithNoHotel,
   createManyBookings,
-  createManyRoomsWithHotelId
+  createBookingWithWrongUserId
 } from "../factories";
 import { cleanDb, generateValidToken } from "../helpers";
 
@@ -310,6 +310,25 @@ describe("when token is valid", () => {
     expect(response.body).toMatchObject({
       bookingId: expect.any(Number)
     })
+  });
+
+  it("should respond with status 404 if the booking does not have the given userId", async () => {
+
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createTicketTypeWithHotel();
+    const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+    await createPayment(ticket.id, ticketType.price);
+    const createdHotel = await createHotel();
+    const createdRoom = await createRoomWithHotelId(createdHotel.id);
+    const createdBookingWrong = await createBookingWithWrongUserId(user.id, createdRoom.id)
+    const createdBooking = await createBooking(user.id, createdRoom.id)
+
+    const response = await server.put(`/booking/${createdBookingWrong.id}`).set("Authorization", `Bearer ${token}`).send({roomId: createdRoom.id});
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+    
   });
 
   it("should respond with status 403 if there is no enrollment", async () => {

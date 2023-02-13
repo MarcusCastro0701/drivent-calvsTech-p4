@@ -46,10 +46,21 @@ async function updateBooking(bookingId: number, roomId: number){
 
 }
 
+async function retrieveBookingByBookingId(bookingId: number){
+
+    const get = await prisma.booking.findFirst({
+        where: {id: bookingId}
+    })
+
+    return get
+
+}
+
 const bookingRepository = {
     retrieveBooking,
     insertBooking,
-    updateBooking
+    updateBooking,
+    retrieveBookingByBookingId
 }
 
 export default bookingRepository

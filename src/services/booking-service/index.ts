@@ -78,12 +78,15 @@ async function changeBooking(roomId: number, bookingId: number, userId: number):
         throw forbidenError()
     }
 
+
     const verifyUser = await userRepository.findById(userId)
 
     if(verifyUser.Booking.length === 0){
         //console.log("verifyUser.Booking.length === 0")
+    
         throw forbidenError()
     }
+
 
     const verifyRoom = await roomRepository.findRoomById(roomId)
 
@@ -94,8 +97,16 @@ async function changeBooking(roomId: number, bookingId: number, userId: number):
 
     if(verifyRoom.Booking.length === verifyRoom.capacity){
         //console.log("verifyRoom.Booking.length === verifyRoom.capacity")
+        
         throw forbidenError()
     }
+
+    const verifyBooking = await bookingRepository.retrieveBookingByBookingId(bookingId);
+
+    if(verifyBooking.userId !== userId){
+        throw notFoundError()
+    }
+    
 
     const change = await bookingRepository.updateBooking(bookingId, roomId)
 
